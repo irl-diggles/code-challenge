@@ -1,49 +1,41 @@
-const { getColor } = require('./apiMock');
+import { getColor } from './apiMock';
 
-class Color {
-	constructor(name) {
-		this.name = name
-	}
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+async function getColors(colors, callback) {
+  const colorArray = [];
+  colors.forEach((color) => {
+    colorArray.push(getColor(color));
+  });
+  callback(colorArray);
+  return colorArray;
 }
 
-class Green extends Color {
-	constructor() {
-		super('green');
-	}
-}
+const colors = () => {
+  let uniqueArgs = [];
+  rl.question('What colors would you like?', (colors) => {
+    rl.question('What order should the colors be displayed?', (order) => {
+      const colorArguments = colors.split(' ');
+      uniqueArgs = [...new Set(colorArguments)];
+      let orderArguments = [];
+      if (order) {
+        orderArguments = order.split(' ');
+        uniqueArgs.sort((a, b) => (orderArguments.indexOf(a) - orderArguments.indexOf(b)));
+      }
 
-class Blue extends Color {
-	constructor() {
-		super('blue');
-	}
-}
+      getColors(uniqueArgs, async (colors) => {
+        const returnedColors = await Promise.all(colors);
+        returnedColors.forEach((color) => {
+          console.log(`${color.name} - HEX: ${color.HEX} RBG: R:${color.RGB.R} G:${color.RGB.G} B:${color.RGB.B}`);
+        });
+      });
+    });
+  });
+};
 
-class Red extends Color {
-	constructor() {
-		super('Red');
-	}
-}
-
-async function getColors(green, blue, red, order, callback) {
-	const colors = [];
-	if (green) colors[order.indexOf('green')] = getColor('green');
-	if (blue) colors[order.indexOf('blue')] = getColor('blue');
-	if (red) colors[order.indexOf('red')] = getColor('red');
-	callback(colors);
-	return colors;
-}
-
-function colors() {
-	let green = process.argv[2];;
-	let blue = process.argv[3]
-	let red = process.argv[4];
-	const colorOrder = process.argv[5]
-	getColors(green, blue, red, JSON.parse(colorOrder), async function (colors) {
-		colors = await Promise.all(colors)
-		var hexColors = []
-		colors.forEach(color => hexColors.push(color.HEX))
-		console.log("Red " + hexColors[0], "Green " + hexColors[1]);
-	});
-}
-
-colors()
+colors();
