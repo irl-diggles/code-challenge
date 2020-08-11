@@ -18,8 +18,8 @@ async function getColors(colors, callback) {
 
 const colors = () => {
   let uniqueArgs = [];
-  rl.question('What colors would you like?', (colors) => {
-    rl.question('What order should the colors be displayed?', (order) => {
+  rl.question('What colors would you like? ', (colors) => {
+    rl.question('What order should the colors be displayed? ', (order) => {
       const colorArguments = colors.split(' ');
       uniqueArgs = [...new Set(colorArguments)];
       let orderArguments = [];
